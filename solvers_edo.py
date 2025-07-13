@@ -206,31 +206,33 @@ if __name__ == "__main__":
 
     import matplotlib.pyplot as plt
 
-    def f_tiro(x, y):
-        return np.array([y[1], -y[0]])
+    C = 0.041
+
+    def f_tiro(t, y2):
+        y, w = y2
+        dydx = w
+        dwdx = C * np.sqrt(1.0 + w**2)
+        return np.array([dydx, dwdx])
+    
 
     a = 0.0
-    b = np.pi / 2
-    h = 0.1
-    y0 = 0.0           # y(0) = 0
-    yb = 1.0           # y(pi/2) = 1
-    chute1 = 0.0       # Chute inicial para y'(0)
-    chute2 = 2.0       # Segundo chute
+    b = 20
+    h = 0.01
+    y0 = 15            # y(0) = 0
+    yb = 10            # y(pi/2) = 1
+    chute1 = -5       # Chute inicial para y'(0)
+    chute2 = 10       # Segundo chute
 
     print("\n==> Método do Tiro com RK4:")
-    T, X = SolverEDO.tiro(f_tiro, a, b, h, y0, yb, chute1, chute2)
+    T, X = SolverEDO.tiro(f_tiro, a, b, h, y0, yb, chute1, chute2, max_iter=10)
 
     for i in range(len(T)):
         print(f"y({T[i]:.2f}) ≈ {X[0, i]:.6f}")
 
-    # Solução analítica para comparação
-    def y_exata(x):
-        return np.sin(x)
-
     # Plotando a solução numérica vs analítica
     plt.figure(figsize=(10, 5))
     plt.plot(T, X[0], 'o-', label='Solução Numérica (Método do Tiro + RK4)')
-    plt.plot(T, y_exata(T), 'r--', label='Solução Analítica: y(x) = sin(x)')
+    # plt.plot(T, y_exata(T), 'r--', label='Solução Analítica: y(x) = sin(x)')
     plt.xlabel('x')
     plt.ylabel('y(x)')
     plt.title('Comparação: Solução Numérica vs. Solução Exata')
