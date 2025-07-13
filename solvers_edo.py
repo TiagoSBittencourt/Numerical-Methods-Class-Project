@@ -129,6 +129,54 @@ class SolverEDO:
 
         return T, X
 
+    @staticmethod
+    def tiro(f: Callable, a: float, b: float, h: float, y0: float, yb: float, chute1: float, chute2: float, tol: float = 1e-5, max_iter: int = 100) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Resolve uma EDO de 2ª ordem como PVI usando o método do Tiro Simples com Runge-Kutta de 4ª ordem.
+
+        Argumentos:
+        f (Callable): Função que retorna o sistema reescrito como EDOs de 1ª ordem (recebe t e vetor x)
+        a (float): Início do intervalo
+        b (float): Fim do intervalo
+        h (float): Tamanho do passo
+        y0 (float): Condição inicial y(a)
+        yb (float): Valor esperado para y(b)
+        chute1 (float): Primeiro chute para y'(a)
+        chute2 (float): Segundo chute para y'(a)
+        tol (float): Tolerância para o critério de parada
+        max_iter (int): Número máximo de iterações
+
+        Retorna:
+        (np.ndarray, np.ndarray): Vetor T e matriz solução X (com y e y')
+        """
+        
+        x0_1 = np.array([y0, chute1])
+        _, X1 = SolverEDO.rk4(f, a, b, h, x0_1)
+        erro1 = X1[0, -1] - yb
+
+        x0_2 = np.array([y0, chute2])
+        T, X2 = SolverEDO.rk4(f, a, b, h, x0_2)
+        erro2 = X2[0, -1] - yb
+
+        for _ in range(max_iter):
+            if abs(erro2) < tol:
+                return T, X2
+
+            # Secante 
+            chute3 = chute2 - erro2 * (chute2 - chute1) / (erro2 - erro1)
+
+            x0_3 = np.array([y0, chute3])
+            T, X3 = SolverEDO.rk4(f, a, b, h, x0_3)
+            erro3 = X3[0, -1] - yb 
+
+            # Atualiza valores para a proxima iteração  
+            chute1, erro1 = chute2, erro2
+            chute2, erro2 = chute3, erro3 
+            X2 = X3
+
+        return T, X2
+
+
 
 if __name__ == "__main__":
     def f_test(t, x):
@@ -155,3 +203,38 @@ if __name__ == "__main__":
     T4, X4 = SolverEDO.rk4(f_test, a, b, h, x0)
     for i in range(len(T4)):
         print(f"y({T4[i]:.1f}) ≈ {X4[0, i]:.6f}")
+
+    import matplotlib.pyplot as plt
+
+    def f_tiro(x, y):
+        return np.array([y[1], -y[0]])
+
+    a = 0.0
+    b = np.pi / 2
+    h = 0.1
+    y0 = 0.0           # y(0) = 0
+    yb = 1.0           # y(pi/2) = 1
+    chute1 = 0.0       # Chute inicial para y'(0)
+    chute2 = 2.0       # Segundo chute
+
+    print("\n==> Método do Tiro com RK4:")
+    T, X = SolverEDO.tiro(f_tiro, a, b, h, y0, yb, chute1, chute2)
+
+    for i in range(len(T)):
+        print(f"y({T[i]:.2f}) ≈ {X[0, i]:.6f}")
+
+    # Solução analítica para comparação
+    def y_exata(x):
+        return np.sin(x)
+
+    # Plotando a solução numérica vs analítica
+    plt.figure(figsize=(10, 5))
+    plt.plot(T, X[0], 'o-', label='Solução Numérica (Método do Tiro + RK4)')
+    plt.plot(T, y_exata(T), 'r--', label='Solução Analítica: y(x) = sin(x)')
+    plt.xlabel('x')
+    plt.ylabel('y(x)')
+    plt.title('Comparação: Solução Numérica vs. Solução Exata')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
