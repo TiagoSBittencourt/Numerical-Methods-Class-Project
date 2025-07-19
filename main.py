@@ -184,17 +184,17 @@ def main():
     
     # Opção para gerar PDF
     print("\n" + "=" * 60)
-    print("GERAR RELATÓRIO PDF DETALHADO")
+    print("GERAR RELATÓRIO DETALHADO DOS RESULTADOS EM PDF")
     print("=" * 60)
     
-    resposta = input("Deseja gerar um relatório PDF detalhado? (s/n): ").lower().strip()
+    resposta = input("Deseja gerar um relatório detalhado dos resultados obtidos em formato PDF? (s/n): ").lower().strip()
     
     if resposta in ['s', 'sim', 'y', 'yes']:
         try:
             print("\nGerando relatório PDF...")
             print("(Os cálculos serão executados novamente para o PDF, mas sem exibir gráficos)")
             
-            nome_pdf = gerar_pdf_relatorio("relatorio_metodos_numericos.pdf")
+            nome_pdf = gerar_pdf_relatorio("resultado_metodos_numericos.pdf")
             
             print(f"\nSUCESSO: Relatório PDF gerado com sucesso!")
             print(f"Arquivo: {nome_pdf}")

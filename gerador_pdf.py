@@ -19,7 +19,7 @@ from numerical_dif import NumericalDifferentiator
 from regressao import regressao_polinomial
 
 class RelatorPDF:
-    def __init__(self, nome_arquivo="relatorio_metodos_numericos.pdf"):
+    def __init__(self, nome_arquivo="resultado_metodos_numericos.pdf"):
         self.nome_arquivo = nome_arquivo
         self.doc = SimpleDocTemplate(nome_arquivo, pagesize=A4)
         self.styles = getSampleStyleSheet()
@@ -56,11 +56,13 @@ class RelatorPDF:
         titulo = Paragraph("RELATÓRIO TÉCNICO<br/>MÉTODOS NUMÉRICOS PARA EQUAÇÕES DIFERENCIAIS", self.titulo_style)
         self.story.append(titulo)
         self.story.append(Spacer(1, 12))
-        
+        alunos_texto = "Pedro Druck Montalvão Reis - 241040332, Lucas Andrade Zanetti - 241039645, Tiago Santos Bittencourt - 241011653, Angel Daniel Grau Barreto - 241025158"
+        alunos_paragraph = Paragraph(alunos_texto, self.styles['Normal'])
         # Informações do projeto
         info_data = [
             ["Disciplina:", "Métodos Numéricos"],
             ["Projeto:", "Análise de Cabo Suspenso"],
+            ["Alunos:", alunos_paragraph],
             ["Data:", datetime.now().strftime("%d/%m/%Y %H:%M")],
             ["Equação:", "d^2y/dx^2 = C*sqrt(1 + (dy/dx)^2)"],
             ["Constante C:", "0.041"],
@@ -444,7 +446,7 @@ class RelatorPDF:
         return resultado
 
 
-def gerar_pdf_relatorio(nome_arquivo="relatorio_metodos_numericos.pdf"):
+def gerar_pdf_relatorio(nome_arquivo="resultado_metodos_numericos.pdf"):
     """
     Função principal para gerar o relatório PDF
     """
